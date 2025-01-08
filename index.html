@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Social Media Content Analyzer</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="navbar">
+        <div class="logo">Social Pulse</div>
+    </div>
+
+    <div class="main">
+        <!-- Welcome Section -->
+        <div class="welcome-section" id="welcome-section">
+            <h1>Social Media Content Analyzer</h1>
+            <p>Click below to analyze your content with AI assistance</p>
+            <button onclick="showChatPage()">Analyze Content</button>
+        </div>
+
+        <!-- Chat Section -->
+        <div class="chat-section hidden" id="chat-section">
+            <h1>AI Social Media Assistant</h1>
+            <div id="chatbox">
+                <!-- Chat messages will appear here -->
+            </div>
+            <div class="chat-input">
+                <input type="text" id="user-input" placeholder="Type your query here...">
+                <button onclick="sendPrompt()">Send</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function showChatPage() {
+            document.getElementById('welcome-section').classList.add('hidden');
+            document.getElementById('chat-section').classList.remove('hidden');
+        }
+
+        async function sendPrompt() {
+            const userInput = document.getElementById('user-input').value;
+            const chatbox = document.getElementById('chatbox');
+
+            // Display user input
+            const userMessage = document.createElement('div');
+            userMessage.className = 'message user';
+            userMessage.innerText = userInput;
+            chatbox.appendChild(userMessage);
+
+            // Send the query to the backend
+            try {
+                const response = await fetch('/chat', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        query: userInput,
+                        tweaks: {}, // Add any tweaks if necessary
+                    }),
+                });
+
+                const data = await response.json();
+
+                // Display AI response
+                const aiMessage = document.createElement('div');
+                aiMessage.className = 'message ai';
+                aiMessage.innerText = data.response || "No response received.";
+                chatbox.appendChild(aiMessage);
+            } catch (error) {
+                console.error("Error:", error);
+                const errorMessage = document.createElement('div');
+                errorMessage.className = 'message ai';
+                errorMessage.innerText = "Error fetching response.";
+                chatbox.appendChild(errorMessage);
+            }
+
+            // Clear input
+            document.getElementById('user-input').value = '';
+            chatbox.scrollTop = chatbox.scrollHeight;
+        }
+    </script>
+</body>
+</html>
